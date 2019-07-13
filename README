@@ -1,7 +1,165 @@
-#  第一个全栈项目--在线资金管理系统 
-## vue(全家桶)+node(express)+mongodb+elementui+阿里云(centos)
-1.项目介绍
-2.开发过程
-3.部署上线
+## 第一个全栈项目   在线管理系统  [项目预览地址](http://47.93.46.224:8080)  ，[github地址](https://github.com/2533145487/fundManager.git) </br>
+*************
+#### 1.项目介绍<br/>2.开发阶段<br/>3.部署上线
+*****************
+#  项目介绍
+************
+######  技术栈：vue全家桶 + node(express)+mongodb+elementui+阿里云(centos）
+######  前端部分：登录，注册，登录后查看用户信息，根据用户权限操作数据，分页展示数据
+######  后端部分: 给前端提供接口地址
+**************
+#  开发阶段
+*******
 
+```
+git clone https://github.com/2533145487/fundManager.git 
 
+npm install
+```
+由于此项目在server.js中进行了配置，可以前后端连载运行,直接`npm run dev`就ok
+*******
+#  部署上线
+***********
+####  工具:WinSCP    ， Xshell， 阿里云服务器（centos64)
+#### 1.通过WinSCP连接到服务器，连接 IP 即阿里云公网 IP,并确保阿里云22端口开放（在安全规则里配置) <br/>  <br/> 2.用Xshell安装node,mongodb,git (注意：node的版本一定不要与开发所用node版本差别太大，否则有些依赖包安装会报错)
+***********
+####  2.1.node安装教程，
+我用的是node10，采用yum源文件安装更稳妥，并且是全局，压缩包安装不知为毛npm安装不成功
+
+```
+curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+yum install -y nodejs
+
+node -v
+npm -v
+```
+测试 ok
+
+####  2.2mongodb安装，mongodb采用压缩包格式安装
+####  下载安装包
+```
+cd  /tmp/  && wget  https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-4.0.3.tgz
+```
+#### 解压并移动到/opt/下
+
+```
+tar -xvzf  mongodb-linux-x86_64-rhel70*  && mv  mongodb-linux-x86_64-rhel70-4.0.3  /opt/mongodb
+```
+####  创建目录 data(用来存放数据的)，log（存放日志的）
+
+```
+mkdir  /opt/mongodb/data
+mkdir  /opt/mongodb/log
+```
+####  创建mongodb配置文件并配置 mongodb.conf
+
+```
+cd /opt/mongodb/ && vim mongodb.conf
+```
+####  配置文件内容
+
+```
+bind_ip=0.0.0.0
+port=27017
+dbpath=/opt/mongodb/data/
+logpath=/opt/mongodb/log/mongodb.log
+pidfilepath =/opt/mongodb/mongodb.pid
+logappend=true
+fork=true 
+maxConns=500
+noauth = true
+```
+####  配置文件参数解释
+
+```
+ 1 bind_ip=0.0.0.0  # 绑定的ip,0.0.0.0 表示本地所有ip
+ 2 port=27017        # 绑定的端口 默认端口是27017
+ 3 dbpath=/opt/mongodb/data/  #数据存放目录
+ 4 logpath=/opt/mongodb/log/mongodb.log #日志存放目录
+ 5 pidfilepath =/opt/mongodb/mongodb.pid #pid文件存放位置
+ 6 logappend=true    #日志写入为追加模式
+ 7 fork=true     #是否以守护进程运行
+ 8 maxConns=500  #最大连接数
+ 9 noauth = true/auth=true   #是否开启认证，初次不开启，设置完密码后开启。默认是不开启的
+```
+启动mongodb
+
+```
+/opt/mongodb/bin/mongod -f /opt/mongodb/mongodb.conf
+```
+查看mongodb进程,检查是否成功启动
+
+```
+netstat -antpl | grep mongo
+```
+防火墙开启27017端口
+
+```
+firewall-cmd --add-port=27017/tcp  --permanent
+firewall-cmd --reload
+```
+关闭mongo服务（如果没有关闭mongo服务再次启动mongo会报端口被占用错误)
+
+```
+/opt/mongodb/bin/mongod -f /opt/mongodb/mongodb.conf --shutdown
+```
+####  2.3 安装 git
+
+```
+yum install -y git
+
+git --version
+```
+安装ok，至此，，项目所需环境已经搭建完毕
+*******************
+##  3.部署上线
+*************
+####  3.1.从github克隆项到本地，具体哪个目录自己选择，我选择/usr/src目录
+```
+git clone https://github.com/2533145487/fundManager.git 
+```
+分别安装前后端依赖包
+
+```
+npm install 
+
+cd client 
+npm install
+```
+####  3.2.运行（依然用我开发时前后端连载方式）
+
+```
+npm run dev
+```
+#### 3.3 后台运行，这样在断开远程连接后依然可以访问服务器项目
+######  首先安装 pm2
+```
+npm install pm2 -g
+```
+用 pm2 启动项目
+
+```
+pm2 start  npm -- run dev
+```
+查看当前 pm2 所管理的项目
+
+```
+pm2 list 
+```
+停止pm2下所有项目
+
+```
+pm2 stop all  
+```
+pm2常用操作
+
+```
+pm2 list //列出所有
+pm2 start ./bin/www  运行
+pm2 start 1  运行(序号)
+pm2 stop ./bin/www 停止
+pm2 stop 1 停止(序号)
+```
+至此，项目已经部署成功
+****************
+#  完美！！！！！！！！！！！！
